@@ -1,0 +1,151 @@
+---
+title: "Raport 4"
+author: "Romana Żmuda"
+date: "20 05 2020"
+output: pdf_document
+---
+
+```{r, echo=FALSE, message=FALSE}
+rm(list=(ls()))
+data_path<- "C:\\Users\\roman\\Documents\\R\\Stata"
+setwd(data_path)
+library(dplyr)
+crime<-read.table("crime1.txt")
+colnames(crime)<-c("Rate","Age","S","Ed","Ex0","Ex1","LF","M","N","NW","U1","U2","W","X")
+```
+
+# Zadanie 1 
+Wykres rozrzutu dla wszystkich par ze zbioru crime:
+
+```{r, echo=FALSE}
+pairs(crime)
+```
+
+# Zadanie 2
+Macierz współczynników korelacji próbkowych Pearsona dla zmiennych z pliku crime:
+```{r}
+cor(crime, method = "pearson")
+```
+
+Zadanie 3
+
+a) Na zmienną objaśnianą Rate największy wpływ mają zmienne informujące o wydatkach policyjnych, a więc zmienne Ex0 oraz Ex1
+
+b) Problem współliniowości to istnienie korelacji między zmiennymi, której wartość jest bliska 1, takie zjawisko występuje między Ex0 i Ex1
+\newpage
+
+# Zadanie 4
+Poniżej konstruuję model regresji dla zmiennej objaśnianej Rate na całym zbiorze:
+```{r,echo=TRUE}
+regresja<-lm(Rate~., data = crime)
+```
+Równanie regresji to podanie odpowiednik współczynników $\beta$ oraz współczynnik wyrazu wolnego $\epsilon$ w naszym odpowiednio są to wartości w kolumnie Estimate, gdzie Intercept to wyraz wolny, a wartości poniżej to współczynniki $\beta$.
+```{r,echo=FALSE} 
+regresja.summary<-summary(regresja)
+regresja.summary
+```
+
+Wyznaczony współczynnik determinacji $R^2$:
+```{r,echo=FALSE} 
+R.2<-regresja.summary$r.squared
+R.2
+```
+Wyznaczony współczynnik determinacji $adj$ $R^2$:
+```{r,echo=FALSE} 
+adjR.2<-regresja.summary$adj.r.squared
+adjR.2
+```
+Obliczenie prognozowanej przez ten model wartości współczynnika Rate, \newline
+dla danych $(150, 1, 90, 50, 60, 500, 950, 30, 300, 100, 40, 400, 200)$:
+```{r,echo=FALSE} 
+values<-c(150, 1, 90, 50, 60, 500, 950, 30, 300, 100, 40, 400, 200)
+
+prognoza<-regresja.summary$coefficients[1]+sum(regresja.summary$coefficients[2:14]*values)
+prognoza
+```
+
+# Zadanie 5
+$A)$Poniżej konstruuję model regresji dla zmiennej objaśnianej Rate na zmienych objaśniających $Ex1,X,Ed, Age,U2$:
+```{r,echo=TRUE}
+regresja.a<-lm(Rate~Age+Ed+Ex1+U2+X, data = crime)
+```
+Równanie regresji to podanie odpowiednik współczynników $\beta$ oraz współczynnik wyrazu wolnego $\epsilon$ w naszym odpowiednio są to wartości w kolumnie Estimate, gdzie Intercept to wyraz wolny, a wartości poniżej to współczynniki $\beta$.
+```{r,echo=FALSE} 
+regresja.summary.a<-summary(regresja.a)
+regresja.summary.a
+```
+
+Wyznaczony współczynnik determinacji $R^2$:
+```{r,echo=FALSE} 
+R.2.a<-regresja.summary.a$r.squared
+R.2.a
+```
+Wyznaczony współczynnik determinacji $adj$ $R^2$:
+```{r,echo=FALSE} 
+adjR.2.a<-regresja.summary.a$adj.r.squared
+adjR.2.a
+```
+Obliczenie prognozowanej przez ten model wartości współczynnika Rate, \newline
+dla danych $(150,90,60,40,200)$:
+```{r,echo=FALSE} 
+
+values.a<-c(150,90,60,40,200)
+prognoza.a<-regresja.summary.a$coefficients[1]+sum(regresja.summary.a$coefficients[2:6]*values.a)
+prognoza.a
+```
+
+$B)$Poniżej konstruuję model regresji dla zmiennej objaśnianej Rate na zmienych objaśniających $EX0,LF,M,N,NW$:
+```{r,echo=TRUE}
+regresja.b<-lm(Rate~Ex0+LF+M+N+NW, data = crime)
+```
+Równanie regresji to podanie odpowiednik współczynników $\beta$ oraz współczynnik wyrazu wolnego $\epsilon$ w naszym odpowiednio są to wartości w kolumnie Estimate, gdzie Intercept to wyraz wolny, a wartości poniżej to współczynniki $\beta$.
+```{r,echo=FALSE} 
+regresja.summary.b<-summary(regresja.b)
+regresja.summary.b
+```
+
+Wyznaczony współczynnik determinacji $R^2$:
+```{r,echo=FALSE} 
+R.2.b<-regresja.summary.b$r.squared
+R.2.b
+```
+Wyznaczony współczynnik determinacji $adj$ $R^2$:
+```{r,echo=FALSE} 
+adjR.2.b<-regresja.summary.b$adj.r.squared
+adjR.2.b
+```
+Obliczenie prognozowanej przez ten model wartości współczynnika Rate, \newline
+dla danych $(50,500,950,30,300)$:
+```{r,echo=FALSE} 
+
+values.b<-c(50,500,950,30,300)
+prognoza.b<-regresja.summary.b$coefficients[1]+sum(regresja.summary.b$coefficients[2:6]*values.b)
+prognoza.b
+```
+# Zadanie 6
+Przyjrzyjmy się jeszcze raz wartością skorygowanych współczynników determinacji:
+```{r, echo=FALSE}
+print("Wartość adjR^2 dla zad 4 :")
+adjR.2
+print("Wartość adjR^2 dla zad 5a :")
+adjR.2.a
+print("Wartość adjR^2 dla zad 5b :")
+adjR.2.b
+
+```
+Najlepszym współczynnikiem $adj$ $R^2$ jest ten najbliżej jedności, dlatego za najlepszy model uznajemy ten z zadania $5A$. A jej model to:
+```{r, echo=FALSE}
+regresja.summary.a
+```
+
+# Zadanie 7
+Przypomnijmy sobie wyliczenia dla zmiennych objaśniających z danych z zadania 4 dla modelu z zadania 4, 5a(Najlepszy), 5b:
+```{r, echo=FALSE}
+print("Wartość prognozowana dla zmiennych, zadanie 4 :")
+prognoza
+print("Wartość prognozowana dla zmiennych, zadanie 5A (Najlepszy) :")
+prognoza.a
+print("Wartość prognozowana dla zmiennych, zadanie 5B :")
+prognoza.b
+```
+Widać, że prognozy w znacznym stopniu się różnią. Mimo że  wartości skorygowanych współczynników determinacji były podobne w zadaniu 4 oraz 5a to prognozy bardzo się różnią.
